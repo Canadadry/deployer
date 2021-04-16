@@ -29,7 +29,7 @@ func Start(in io.Reader) error {
 		return fmt.Errorf("Parse errors : \n%s", msg)
 	}
 
-	env := object.NewEnvironment()
+	env := object.NewEnvironment(evaluator.Builtins)
 	result := evaluator.Eval(program, env)
 	if result != nil {
 		if result.Type() == object.ERROR_OBJ {
@@ -41,7 +41,7 @@ func Start(in io.Reader) error {
 
 func StartInterActive(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-	env := object.NewEnvironment()
+	env := object.NewEnvironment(evaluator.Builtins)
 
 	for {
 		fmt.Printf(PROMPT)

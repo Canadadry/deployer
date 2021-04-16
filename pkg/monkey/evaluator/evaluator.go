@@ -288,7 +288,7 @@ func evalIdentifier(
 		return val
 	}
 
-	if builtin, ok := builtins[node.Value]; ok {
+	if builtin, ok := env.GetBuiltIn(node.Value); ok {
 		return builtin
 	}
 
