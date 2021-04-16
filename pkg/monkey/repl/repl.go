@@ -8,43 +8,9 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"strings"
 )
 
 const PROMPT = ">> "
-
-func Start(in io.Reader, fn map[string]object.BuiltinFunction) error {
-	content, err := ioutil.ReadAll(in)
-	if err != nil {
-		return fmt.Errorf("Can't read in put %w\n", err)
-	}
-
-	l := lexer.New(string(content))
-	p := parser.New(l)
-
-	program := p.ParseProgram()
-	if len(p.Errors()) != 0 {
-		msg := strings.Join(p.Errors(), "\n")
-		return fmt.Errorf("Parse errors : \n%s", msg)
-	}
-
-	env := object.NewEnvironment()
-	for k, v := range evaluator.Builtins {
-		env.Set(k, v)
-	}
-	for k, v := range fn {
-		env.Set(k, &object.Builtin{Fn: v})
-	}
-
-	result := evaluator.Eval(program, env)
-	if result != nil {
-		if result.Type() == object.ERROR_OBJ {
-			return fmt.Errorf("Runtime error : %s", result.Inspect())
-		}
-	}
-	return nil
-}
 
 func StartInterActive(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
