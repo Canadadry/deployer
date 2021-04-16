@@ -603,7 +603,10 @@ func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
 	program := p.ParseProgram()
-	env := object.NewEnvironment(Builtins)
+	env := object.NewEnvironment()
+	for k, v := range Builtins {
+		env.Set(k, v)
+	}
 
 	return Eval(program, env)
 }

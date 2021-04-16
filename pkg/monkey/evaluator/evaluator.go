@@ -288,10 +288,6 @@ func evalIdentifier(
 		return val
 	}
 
-	if builtin, ok := env.GetBuiltIn(node.Value); ok {
-		return builtin
-	}
-
 	return newError("identifier not found: " + node.Value)
 }
 

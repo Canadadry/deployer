@@ -1,25 +1,19 @@
 package object
 
 func NewEnclosedEnvironment(outer *Environment) *Environment {
-	env := NewEnvironment(outer.builtins)
+	env := NewEnvironment()
 	env.outer = outer
 	return env
 }
 
-func NewEnvironment(builtins map[string]*Builtin) *Environment {
+func NewEnvironment() *Environment {
 	s := make(map[string]Object)
-	return &Environment{store: s, outer: nil, builtins: builtins}
+	return &Environment{store: s, outer: nil}
 }
 
 type Environment struct {
-	builtins map[string]*Builtin
-	store    map[string]Object
-	outer    *Environment
-}
-
-func (e *Environment) GetBuiltIn(name string) (*Builtin, bool) {
-	b, ok := e.builtins[name]
-	return b, ok
+	store map[string]Object
+	outer *Environment
 }
 
 func (e *Environment) Get(name string) (Object, bool) {
