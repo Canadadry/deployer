@@ -6,12 +6,6 @@ import (
 	"fmt"
 )
 
-var (
-	NULL  = &object.Null{}
-	TRUE  = &object.Boolean{Value: true}
-	FALSE = &object.Boolean{Value: false}
-)
-
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 
@@ -158,9 +152,9 @@ func evalBlockStatement(
 
 func nativeBoolToBooleanObject(input bool) *object.Boolean {
 	if input {
-		return TRUE
+		return object.TRUE
 	}
-	return FALSE
+	return object.FALSE
 }
 
 func evalPrefixExpression(operator string, right object.Object) object.Object {
@@ -198,14 +192,14 @@ func evalInfixExpression(
 
 func evalBangOperatorExpression(right object.Object) object.Object {
 	switch right {
-	case TRUE:
-		return FALSE
-	case FALSE:
-		return TRUE
-	case NULL:
-		return TRUE
+	case object.TRUE:
+		return object.FALSE
+	case object.FALSE:
+		return object.TRUE
+	case object.NULL:
+		return object.TRUE
 	default:
-		return FALSE
+		return object.FALSE
 	}
 }
 
@@ -276,7 +270,7 @@ func evalIfExpression(
 	} else if ie.Alternative != nil {
 		return Eval(ie.Alternative, env)
 	} else {
-		return NULL
+		return object.NULL
 	}
 }
 
@@ -293,11 +287,11 @@ func evalIdentifier(
 
 func isTruthy(obj object.Object) bool {
 	switch obj {
-	case NULL:
+	case object.NULL:
 		return false
-	case TRUE:
+	case object.TRUE:
 		return true
-	case FALSE:
+	case object.FALSE:
 		return false
 	default:
 		return true
@@ -393,7 +387,7 @@ func evalArrayIndexExpression(array, index object.Object) object.Object {
 	max := int64(len(arrayObject.Elements) - 1)
 
 	if idx < 0 || idx > max {
-		return NULL
+		return object.NULL
 	}
 
 	return arrayObject.Elements[idx]
@@ -438,7 +432,7 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 
 	pair, ok := hashObject.Pairs[key.HashKey()]
 	if !ok {
-		return NULL
+		return object.NULL
 	}
 
 	return pair.Value

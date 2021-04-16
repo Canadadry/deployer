@@ -1,11 +1,17 @@
 package object
 
 import (
+	"app/pkg/monkey/ast"
 	"bytes"
 	"fmt"
 	"hash/fnv"
-	"app/pkg/monkey/ast"
 	"strings"
+)
+
+var (
+	NULL  = &Null{}
+	TRUE  = &Boolean{Value: true}
+	FALSE = &Boolean{Value: false}
 )
 
 type BuiltinFunction func(args ...Object) Object
