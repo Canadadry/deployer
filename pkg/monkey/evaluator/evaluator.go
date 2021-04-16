@@ -340,7 +340,10 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 	switch fn := fn.(type) {
 
 	case *object.Function:
-		extendedEnv := extendFunctionEnv(fn, args)
+		extendedEnv, err := extendFunctionEnv(fn, args)
+		if err != nil {
+			return &object.Error{Message: err.Error()}
+		}
 		evaluated := Eval(fn.Body, extendedEnv)
 		return unwrapReturnValue(evaluated)
 
@@ -355,14 +358,18 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 func extendFunctionEnv(
 	fn *object.Function,
 	args []object.Object,
-) *object.Environment {
+) (*object.Environment, error) {
 	env := object.NewEnclosedEnvironment(fn.Env)
+
+	if len(fn.Parameters) > len(args) {
+		return nil, fmt.Errorf("function expect %d parameters got %d", len(args), len(fn.Parameters))
+	}
 
 	for paramIdx, param := range fn.Parameters {
 		env.Set(param.Value, args[paramIdx])
 	}
 
-	return env
+	return env, nil
 }
 
 func unwrapReturnValue(obj object.Object) object.Object {

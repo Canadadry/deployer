@@ -33,7 +33,7 @@ func Start(in io.Reader) error {
 	result := evaluator.Eval(program, env)
 	if result != nil {
 		if result.Type() == object.ERROR_OBJ {
-			return fmt.Errorf("Runtime error : %w", result.Inspect())
+			return fmt.Errorf("Runtime error : %s", result.Inspect())
 		}
 	}
 	return nil

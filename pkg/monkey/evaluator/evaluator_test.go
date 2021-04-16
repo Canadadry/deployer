@@ -299,6 +299,23 @@ func TestFunctionApplication(t *testing.T) {
 	}
 }
 
+func TestFunctionApplication_Error(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"fn(x) { x; }(5)", "5"},
+		{"fn(x,y) { x; }(5)", "ERROR: function expect 1 parameters got 2"},
+	}
+
+	for _, tt := range tests {
+		result := testEval(tt.input)
+		if result.Inspect() != tt.expected {
+			t.Fatalf("failed on '%s' expected \n %s \n got %s", tt.input, tt.expected, result.Inspect())
+		}
+	}
+}
+
 func TestEnclosingEnvironments(t *testing.T) {
 	input := `
 let first = 10;
