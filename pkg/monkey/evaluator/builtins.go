@@ -1,8 +1,8 @@
 package evaluator
 
 import (
-	"fmt"
 	"app/pkg/monkey/object"
+	"fmt"
 )
 
 var builtins = map[string]*object.Builtin{
@@ -112,6 +112,14 @@ var builtins = map[string]*object.Builtin{
 			newElements[length] = args[1]
 
 			return &object.Array{Elements: newElements}
+		},
+	},
+	"print": &object.Builtin{
+		Fn: func(args ...object.Object) object.Object {
+			for _, a := range args {
+				fmt.Println(a.Inspect())
+			}
+			return NULL
 		},
 	},
 }

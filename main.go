@@ -4,16 +4,22 @@ import (
 	"app/pkg/monkey/repl"
 	"fmt"
 	"os"
-	"os/user"
 )
 
 func main() {
-	user, err := user.Current()
-	if err != nil {
-		panic(err)
+	if err := run(os.Args); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
-	fmt.Printf("Hello %s! This is the Monkey programming language!\n",
-		user.Username)
-	fmt.Printf("Feel free to type in commands\n")
-	repl.Start(os.Stdin, os.Stdout)
+}
+
+func run(args []string) error {
+	if len(args) <= 1 {
+		return fmt.Errorf("Expect a file to run")
+	}
+	f, err := os.Open(args[1])
+	if err != nil {
+		return err
+	}
+	return repl.Start(f)
 }
