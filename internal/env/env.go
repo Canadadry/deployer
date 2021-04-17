@@ -1,4 +1,4 @@
-package internal
+package env
 
 import (
 	"app/pkg/monkey/object"
@@ -11,10 +11,28 @@ type Task struct {
 	fn          *object.Function
 }
 
-var Store = map[string]string{}
-var Tasks = map[string]Task{}
+type Target interface {
+	Run()
+	RunLocally()
+	Upload()
+	Download()
+}
 
-func AddTask(args ...object.Object) object.Object {
+type Environment struct {
+	store  map[string]string
+	Tasks  map[string]Task
+	target Target
+}
+
+func New(t Target) Environment {
+	return Environment{
+		store:  map[string]string{},
+		Tasks:  map[string]Task{},
+		target: t,
+	}
+}
+
+func (e *Environment) AddTask(args ...object.Object) object.Object {
 	if len(args) != 3 {
 		return &object.Error{Message: fmt.Sprintf("task should have three parameters,got %d\n usage : tast(title, description, function)", len(args))}
 	}
@@ -25,34 +43,34 @@ func AddTask(args ...object.Object) object.Object {
 	if len(fn.Parameters) != 0 {
 		return &object.Error{Message: fmt.Sprintf("task function argument should have no parameters ,got %d", len(fn.Parameters))}
 	}
-	Tasks[args[0].Inspect()] = Task{args[0].Inspect(), args[1].Inspect(), fn}
+	e.Tasks[args[0].Inspect()] = Task{args[0].Inspect(), args[1].Inspect(), fn}
 	return object.NULL
 }
 
-func GetTask(args ...object.Object) object.Object {
+func (e *Environment) GetTask(args ...object.Object) object.Object {
 	if len(args) != 1 {
 		return &object.Error{Message: fmt.Sprintf("getTask should have only one parameter ,got %d", len(args))}
 	}
-	t, ok := Tasks[args[0].Inspect()]
+	t, ok := e.Tasks[args[0].Inspect()]
 	if !ok {
 		return object.NULL
 	}
 	return t.fn
 }
 
-func Set(args ...object.Object) object.Object {
+func (e *Environment) Set(args ...object.Object) object.Object {
 	if len(args) != 2 {
 		return &object.Error{Message: fmt.Sprintf("set should have only two parameters,got %d", len(args))}
 	}
-	Store[args[0].Inspect()] = args[1].Inspect()
+	e.store[args[0].Inspect()] = args[1].Inspect()
 	return object.NULL
 }
 
-func Get(args ...object.Object) object.Object {
+func (e *Environment) Get(args ...object.Object) object.Object {
 	if len(args) != 1 {
 		return &object.Error{Message: fmt.Sprintf("get should have only one parameter ,got %d", len(args))}
 	}
-	str, ok := Store[args[0].Inspect()]
+	str, ok := e.store[args[0].Inspect()]
 	if !ok {
 		return object.NULL
 	}

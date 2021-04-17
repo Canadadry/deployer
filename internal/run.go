@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"app/internal/env"
 	"app/pkg/monkey"
 	"app/pkg/monkey/object"
 	"flag"
@@ -18,16 +19,9 @@ func Run(args []string) error {
 	fs.Parse(args[1:])
 
 	nonFlagArgs := fs.Args()
-	if len(nonFlagArgs) == 0 {
-		PrintHelp(fs)
-		return fmt.Errorf("You must specify a command")
-	}
-
-	command := nonFlagArgs[0]
-
-	if command == "list" {
-		PrintHelp(fs)
-		return nil
+	command := "list"
+	if len(nonFlagArgs) > 0 {
+		command = nonFlagArgs[0]
 	}
 
 	if command == "init" {
@@ -42,30 +36,35 @@ task("test","mydesc",fn(){
 	if err != nil {
 		return err
 	}
+	e := env.New(nil)
 	eval := monkey.New(map[string]object.BuiltinFunction{
-		"set":  Set,
-		"get":  Get,
-		"task": AddTask,
+		"set":  e.Set,
+		"get":  e.Get,
+		"task": e.AddTask,
 	})
 	err = monkey.ToError(eval.Eval(f))
 	if err != nil {
 		return err
 	}
 
-	_, ok := Tasks[command]
+	if command == "list" {
+		PrintHelp(fs, e.Tasks)
+		return nil
+	}
+	_, ok := e.Tasks[command]
 	if !ok {
-		PrintHelp(fs)
+		PrintHelp(fs, e.Tasks)
 		return fmt.Errorf("Invalid command : %s", command)
 	}
 
-	eval.SetEnv("getTask", &object.Builtin{Fn: GetTask})
+	eval.SetEnv("getTask", &object.Builtin{Fn: e.GetTask})
 
 	prog := fmt.Sprintf(`getTask("%s")()`, command)
 
 	return monkey.ToError(eval.Eval(strings.NewReader(prog)))
 }
 
-func PrintHelp(fs *flag.FlagSet) {
+func PrintHelp(fs *flag.FlagSet, tasks map[string]env.Task) {
 	fmt.Println(fs.Name())
 	fmt.Print(`
 Usage:
@@ -81,7 +80,7 @@ Available commands:
   init   Initialize deployer in your project
   list   Lists commands`)
 
-	for _, t := range Tasks {
+	for _, t := range tasks {
 		fmt.Printf("\n  %s   %s", t.Title, t.Description)
 	}
 	fmt.Printf("\n\n")
