@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-func (c *client) Upload(path string, from io.Reader) error {
+func (c *client) Upload(pathTo string, from io.Reader) error {
 
 	client, err := sftp.NewClient(c.ssh)
 	if err != nil {
@@ -13,7 +13,7 @@ func (c *client) Upload(path string, from io.Reader) error {
 	}
 	defer client.Close()
 
-	to, err := client.Create(path)
+	to, err := client.Create(pathTo)
 	if err != nil {
 		return err
 	}
@@ -23,7 +23,7 @@ func (c *client) Upload(path string, from io.Reader) error {
 	return err
 }
 
-func (c *client) Download(path string, to io.Writer) error {
+func (c *client) Download(pathFrom string, to io.Writer) error {
 
 	client, err := sftp.NewClient(c.ssh)
 	if err != nil {
@@ -31,7 +31,7 @@ func (c *client) Download(path string, to io.Writer) error {
 	}
 	defer client.Close()
 
-	from, err := client.Open(path)
+	from, err := client.Open(pathFrom)
 	if err != nil {
 		return []byte{}, err
 	}

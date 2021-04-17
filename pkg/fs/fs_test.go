@@ -13,3 +13,10 @@ func testOpeningNotExistingFile(t *testing.T, fs FS, name string) {
 		t.Fatalf("should have returned %#v got %#v", ErrFileNotFound, err)
 	}
 }
+
+func testOpeningExistingFile(t *testing.T, fs FS, name string) {
+	_, err := fs.Open(name)
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+}

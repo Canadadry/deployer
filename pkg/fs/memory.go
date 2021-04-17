@@ -1,10 +1,15 @@
 package fs
 
 type memory struct {
+	files map[string]File
 }
 
 func (m *memory) Open(name string) (File, error) {
-	return nil, ErrFileNotFound
+	f, ok := m.files[name]
+	if !ok {
+		return nil, ErrFileNotFound
+	}
+	return f, nil
 }
 
 func (m *memory) Delete(name string) error {
