@@ -15,8 +15,11 @@ func testOpeningNotExistingFile(t *testing.T, fs FS, name string) {
 }
 
 func testOpeningExistingFile(t *testing.T, fs FS, name string) {
-	_, err := fs.Open(name)
+	f, err := fs.Open(name)
 	if err != nil {
 		t.Fatalf("should not have returned en error got %#v", err)
+	}
+	if f == nil {
+		t.Fatalf("should not have returned a nil file got %#v", f)
 	}
 }

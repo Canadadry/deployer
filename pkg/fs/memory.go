@@ -1,7 +1,7 @@
 package fs
 
 type memory struct {
-	files map[string]File
+	files map[string]memoryFile
 }
 
 func (m *memory) Open(name string) (File, error) {
@@ -9,7 +9,7 @@ func (m *memory) Open(name string) (File, error) {
 	if !ok {
 		return nil, ErrFileNotFound
 	}
-	return f, nil
+	return &f, nil
 }
 
 func (m *memory) Delete(name string) error {
@@ -26,4 +26,20 @@ func (m *memory) New(name string) (File, error) {
 
 func (m *memory) ReadDir(name string) ([]FileInfo, error) {
 	return nil, nil
+}
+
+type memoryFile struct {
+}
+
+func (mf *memoryFile) Read([]byte) (int, error) {
+	return 0, nil
+}
+func (mf *memoryFile) Write(p []byte) (int, error) {
+	return 0, nil
+}
+func (mf *memoryFile) Close() error {
+	return nil
+}
+func (mf *memoryFile) Stat() FileInfo {
+	return nil
 }

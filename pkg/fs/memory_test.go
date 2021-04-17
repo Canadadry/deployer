@@ -14,8 +14,8 @@ func TestOpeningNotExistingFile(t *testing.T) {
 
 func TestOpeningExistingFile(t *testing.T) {
 	fs := &memory{
-		files: map[string]File{
-			"real_file": nil,
+		files: map[string]memoryFile{
+			"real_file": memoryFile{},
 		},
 	}
 	testOpeningExistingFile(t, fs, "real_file")
