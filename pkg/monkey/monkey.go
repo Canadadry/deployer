@@ -11,8 +11,16 @@ import (
 	"strings"
 )
 
+func ToError(result object.Object) error {
+	if result.Type() == object.ERROR_OBJ {
+		return fmt.Errorf(result.Inspect())
+	}
+	return nil
+}
+
 type Evalulator interface {
 	Eval(io.Reader) object.Object
+	SetEnv(name string, value object.Object)
 }
 
 type eval struct {
@@ -52,4 +60,8 @@ func (e *eval) Eval(cmd io.Reader) object.Object {
 		}
 	}
 	return object.NULL
+}
+
+func (e *eval) SetEnv(name string, value object.Object) {
+	e.env.Set(name, value)
 }

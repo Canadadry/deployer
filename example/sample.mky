@@ -1,6 +1,0 @@
-set(1,2)
-print(get(true))
-
-task("test",fn(){
-    print("lo")
-})
