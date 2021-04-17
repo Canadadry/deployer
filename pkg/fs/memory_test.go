@@ -4,6 +4,7 @@ import (
 	// "fmt"
 	// "reflect"
 	// "sort"
+	"bytes"
 	"testing"
 )
 
@@ -15,8 +16,10 @@ func TestOpeningNotExistingFile(t *testing.T) {
 func TestOpeningExistingFile(t *testing.T) {
 	fs := &memory{
 		files: map[string]memoryFile{
-			"real_file": memoryFile{},
+			"real_file": memoryFile{
+				content: bytes.NewBufferString("file content"),
+			},
 		},
 	}
-	testOpeningExistingFile(t, fs, "real_file")
+	testOpeningExistingFile(t, fs, "real_file", "file content")
 }

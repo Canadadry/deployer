@@ -1,5 +1,9 @@
 package fs
 
+import (
+	"bytes"
+)
+
 type memory struct {
 	files map[string]memoryFile
 }
@@ -29,10 +33,11 @@ func (m *memory) ReadDir(name string) ([]FileInfo, error) {
 }
 
 type memoryFile struct {
+	content *bytes.Buffer
 }
 
-func (mf *memoryFile) Read([]byte) (int, error) {
-	return 0, nil
+func (mf *memoryFile) Read(b []byte) (int, error) {
+	return mf.content.Read(b)
 }
 func (mf *memoryFile) Write(p []byte) (int, error) {
 	return 0, nil
