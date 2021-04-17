@@ -23,3 +23,14 @@ func TestOpeningExistingFile(t *testing.T) {
 	}
 	testOpeningExistingFile(t, fs, "real_file", "file content")
 }
+
+func TestOpeningExistingFileAndWriting(t *testing.T) {
+	fs := &memory{
+		files: map[string]memoryFile{
+			"real_file": memoryFile{
+				content: bytes.NewBufferString(""),
+			},
+		},
+	}
+	testOpeningExistingFileAndWriting(t, fs, "real_file", "file content")
+}

@@ -39,8 +39,8 @@ type memoryFile struct {
 func (mf *memoryFile) Read(b []byte) (int, error) {
 	return mf.content.Read(b)
 }
-func (mf *memoryFile) Write(p []byte) (int, error) {
-	return 0, nil
+func (mf *memoryFile) Write(b []byte) (int, error) {
+	return mf.content.Write(b)
 }
 func (mf *memoryFile) Close() error {
 	return nil
