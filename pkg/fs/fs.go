@@ -6,6 +6,7 @@ import (
 
 var (
 	ErrFileNotFound = fmt.Errorf("File not found")
+	ErrClosedFile   = fmt.Errorf("Closed file")
 )
 
 type FS interface {

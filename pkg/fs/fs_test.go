@@ -51,3 +51,65 @@ func testOpeningExistingFileAndWriting(t *testing.T, fs FS, name string, content
 
 	testOpeningExistingFile(t, fs, name, content)
 }
+
+func testOpeningExistingFile_CannotReadAfterClose(t *testing.T, fs FS, name string) {
+	f, err := fs.Open(name)
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+	if f == nil {
+		t.Fatalf("should not have returned a nil file got %#v", f)
+	}
+	err = f.Close()
+
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+
+	_, err = ioutil.ReadAll(f)
+	if err != ErrClosedFile {
+		t.Fatalf("can read : should have returned en error got %#v want %#v", err, ErrClosedFile)
+	}
+}
+
+func testOpeningExistingFile_CannotWriteAfterClose(t *testing.T, fs FS, name string) {
+	f, err := fs.Open(name)
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+	if f == nil {
+		t.Fatalf("should not have returned a nil file got %#v", f)
+	}
+	err = f.Close()
+
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+
+	_, err = fmt.Fprintf(f, "%s", "content")
+
+	if err != ErrClosedFile {
+		t.Fatalf("can read : should have returned en error got %#v want %#v", err, ErrClosedFile)
+	}
+}
+
+func testOpeningExistingFile_CannotCloseTwice(t *testing.T, fs FS, name string) {
+	f, err := fs.Open(name)
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+	if f == nil {
+		t.Fatalf("should not have returned a nil file got %#v", f)
+	}
+	err = f.Close()
+
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+
+	err = f.Close()
+
+	if err != ErrClosedFile {
+		t.Fatalf("can read : should have returned en error got %#v want %#v", err, ErrClosedFile)
+	}
+}

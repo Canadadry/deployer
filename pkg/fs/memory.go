@@ -37,12 +37,22 @@ type memoryFile struct {
 }
 
 func (mf *memoryFile) Read(b []byte) (int, error) {
+	if mf.content == nil {
+		return 0, ErrClosedFile
+	}
 	return mf.content.Read(b)
 }
 func (mf *memoryFile) Write(b []byte) (int, error) {
+	if mf.content == nil {
+		return 0, ErrClosedFile
+	}
 	return mf.content.Write(b)
 }
 func (mf *memoryFile) Close() error {
+	if mf.content == nil {
+		return ErrClosedFile
+	}
+	mf.content = nil
 	return nil
 }
 func (mf *memoryFile) Stat() FileInfo {
