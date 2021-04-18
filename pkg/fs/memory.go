@@ -28,7 +28,9 @@ func (m *memory) Mkdir(name string) error {
 }
 
 func (m *memory) New(name string) (File, error) {
-	return nil, nil
+	f := &memoryFile{}
+	m.files[name] = f
+	return f, nil
 }
 
 func (m *memory) ReadDir(name string) ([]FileInfo, error) {

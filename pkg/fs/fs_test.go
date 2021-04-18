@@ -134,3 +134,10 @@ func testDeleteFile(t *testing.T, fs FS, name string) {
 		t.Fatalf("should not have returned en error got %#v", err)
 	}
 }
+
+func testCreateFile(t *testing.T, fs FS, name string) {
+	_, err := fs.New(name)
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+}

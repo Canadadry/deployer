@@ -111,3 +111,12 @@ func TestDeleteFile(t *testing.T) {
 	testDeleteFile(t, fs, "real_file")
 	testOpeningNotExistingFile(t, fs, "real_file")
 }
+
+func TestCreatingFile(t *testing.T) {
+	fs := &memory{files: map[string]*memoryFile{}}
+
+	testOpeningNotExistingFile(t, fs, "real_file")
+	testCreateFile(t, fs, "real_file")
+	testOpeningExistingFileAndWriting(t, fs, "real_file", "file content")
+	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
+}
