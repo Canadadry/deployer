@@ -27,8 +27,15 @@ func (m *memory) Delete(name string) error {
 }
 
 func (m *memory) Mkdir(name string) error {
-	m.files[name] = &memoryDirectory{}
-	return nil
+	f, ok := m.files[name]
+	if !ok {
+		m.files[name] = &memoryDirectory{}
+		return nil
+	}
+	if f.Stat().IsDir() {
+		return nil
+	}
+	return ErrReservedName
 }
 
 func (m *memory) New(name string) (File, error) {

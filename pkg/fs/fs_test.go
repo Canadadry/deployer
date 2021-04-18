@@ -152,3 +152,10 @@ func testCreatingDirectory(t *testing.T, fs FS, name string) {
 func testOpeningDirectory(t *testing.T, fs FS, name string) {
 	testOpeningExistingFile_GetSatIsDir(t, fs, name, true)
 }
+
+func testCreatingDirectoryOnExistingFile(t *testing.T, fs FS, name string) {
+	err := fs.Mkdir(name)
+	if err != ErrReservedName {
+		t.Fatalf("should have returned en error got %#v want %#v", err, ErrReservedName)
+	}
+}

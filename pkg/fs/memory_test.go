@@ -151,3 +151,12 @@ func TestOpeningDirectory(t *testing.T) {
 	testCreatingDirectory(t, fs, "real_dir")
 	testOpeningDirectory(t, fs, "real_dir")
 }
+
+func TestCreatingDirectoryOnExistingFile(t *testing.T) {
+	fs := &memory{
+		files: map[string]File{},
+	}
+
+	testCreateFile(t, fs, "real_file")
+	testCreatingDirectoryOnExistingFile(t, fs, "real_file")
+}

@@ -7,6 +7,7 @@ import (
 var (
 	ErrFileNotFound = fmt.Errorf("File not found")
 	ErrClosedFile   = fmt.Errorf("Closed file")
+	ErrReservedName = fmt.Errorf("a file already exist with this name")
 )
 
 type FS interface {
