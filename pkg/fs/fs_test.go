@@ -141,3 +141,14 @@ func testCreateFile(t *testing.T, fs FS, name string) {
 		t.Fatalf("should not have returned en error got %#v", err)
 	}
 }
+
+func testCreatingDirectory(t *testing.T, fs FS, name string) {
+	err := fs.Mkdir(name)
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+}
+
+func testOpeningDirectory(t *testing.T, fs FS, name string) {
+	testOpeningExistingFile_GetSatIsDir(t, fs, name, true)
+}

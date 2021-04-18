@@ -11,7 +11,7 @@ func TestOpeningNotExistingFile(t *testing.T) {
 
 func TestOpeningExistingFileAndReading(t *testing.T) {
 	fs := &memory{
-		files: map[string]*memoryFile{
+		files: map[string]File{
 			"real_file": &memoryFile{
 				content: []byte("file content"),
 			},
@@ -22,7 +22,7 @@ func TestOpeningExistingFileAndReading(t *testing.T) {
 
 func TestOpeningExistingFileAndWriting(t *testing.T) {
 	fs := &memory{
-		files: map[string]*memoryFile{
+		files: map[string]File{
 			"real_file": &memoryFile{
 				content: []byte(""),
 			},
@@ -33,7 +33,7 @@ func TestOpeningExistingFileAndWriting(t *testing.T) {
 
 func TestOpeningExistingFile_CannotReadAfterClose(t *testing.T) {
 	fs := &memory{
-		files: map[string]*memoryFile{
+		files: map[string]File{
 			"real_file": &memoryFile{
 				content: []byte(""),
 			},
@@ -44,7 +44,7 @@ func TestOpeningExistingFile_CannotReadAfterClose(t *testing.T) {
 
 func TestOpeningExistingFile_CannotWriteAfterClose(t *testing.T) {
 	fs := &memory{
-		files: map[string]*memoryFile{
+		files: map[string]File{
 			"real_file": &memoryFile{
 				content: []byte(""),
 			},
@@ -55,7 +55,7 @@ func TestOpeningExistingFile_CannotWriteAfterClose(t *testing.T) {
 
 func TestOpeningExistingFile_CannotCloseTwice(t *testing.T) {
 	fs := &memory{
-		files: map[string]*memoryFile{
+		files: map[string]File{
 			"real_file": &memoryFile{
 				content: []byte(""),
 			},
@@ -66,7 +66,7 @@ func TestOpeningExistingFile_CannotCloseTwice(t *testing.T) {
 
 func Test_CanOpenTwiceAFile(t *testing.T) {
 	fs := &memory{
-		files: map[string]*memoryFile{
+		files: map[string]File{
 			"real_file": &memoryFile{
 				content: []byte("file content"),
 			},
@@ -78,7 +78,7 @@ func Test_CanOpenTwiceAFile(t *testing.T) {
 
 func Test_CanReadAfterWrite(t *testing.T) {
 	fs := &memory{
-		files: map[string]*memoryFile{
+		files: map[string]File{
 			"real_file": &memoryFile{
 				content: []byte(""),
 			},
@@ -90,7 +90,7 @@ func Test_CanReadAfterWrite(t *testing.T) {
 
 func TestOpeningExistingFile_GetSatIsDir(t *testing.T) {
 	fs := &memory{
-		files: map[string]*memoryFile{
+		files: map[string]File{
 			"real_file": &memoryFile{
 				content: []byte(""),
 			},
@@ -101,7 +101,7 @@ func TestOpeningExistingFile_GetSatIsDir(t *testing.T) {
 
 func TestDeleteFile(t *testing.T) {
 	fs := &memory{
-		files: map[string]*memoryFile{
+		files: map[string]File{
 			"real_file": &memoryFile{
 				content: []byte("file content"),
 			},
@@ -113,7 +113,7 @@ func TestDeleteFile(t *testing.T) {
 }
 
 func TestCreatingFile(t *testing.T) {
-	fs := &memory{files: map[string]*memoryFile{}}
+	fs := &memory{files: map[string]File{}}
 
 	testOpeningNotExistingFile(t, fs, "real_file")
 	testCreateFile(t, fs, "real_file")
@@ -123,7 +123,7 @@ func TestCreatingFile(t *testing.T) {
 
 func TestCreatingFile_WhileFileExist_TruncateIt(t *testing.T) {
 	fs := &memory{
-		files: map[string]*memoryFile{
+		files: map[string]File{
 			"real_file": &memoryFile{
 				content: []byte("file content"),
 			},
@@ -133,4 +133,21 @@ func TestCreatingFile_WhileFileExist_TruncateIt(t *testing.T) {
 	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
 	testCreateFile(t, fs, "real_file")
 	testOpeningExistingFileAndReading(t, fs, "real_file", "")
+}
+
+func TestCreatingDirectory(t *testing.T) {
+	fs := &memory{
+		files: map[string]File{},
+	}
+
+	testCreatingDirectory(t, fs, "real_dir")
+}
+
+func TestOpeningDirectory(t *testing.T) {
+	fs := &memory{
+		files: map[string]File{},
+	}
+
+	testCreatingDirectory(t, fs, "real_dir")
+	testOpeningDirectory(t, fs, "real_dir")
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type memory struct {
-	files map[string]*memoryFile
+	files map[string]File
 }
 
 func (m *memory) Open(name string) (File, error) {
@@ -13,8 +13,11 @@ func (m *memory) Open(name string) (File, error) {
 	if !ok {
 		return nil, ErrFileNotFound
 	}
-	f.open = true
-	f.pos = 0
+	mf, ok := f.(*memoryFile)
+	if ok {
+		mf.open = true
+		mf.pos = 0
+	}
 	return f, nil
 }
 
@@ -24,6 +27,7 @@ func (m *memory) Delete(name string) error {
 }
 
 func (m *memory) Mkdir(name string) error {
+	m.files[name] = &memoryDirectory{}
 	return nil
 }
 
@@ -81,4 +85,22 @@ type fileInfo struct {
 
 func (fi *fileInfo) IsDir() bool {
 	return fi.isDir
+}
+
+type memoryDirectory struct{}
+
+func (md *memoryDirectory) Read(b []byte) (int, error) {
+	return 0, nil
+}
+
+func (md *memoryDirectory) Write(b []byte) (int, error) {
+	return 0, nil
+}
+
+func (md *memoryDirectory) Close() error {
+	return nil
+}
+
+func (md *memoryDirectory) Stat() FileInfo {
+	return &fileInfo{isDir: true}
 }
