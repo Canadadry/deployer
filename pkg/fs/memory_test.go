@@ -175,3 +175,21 @@ func TestReadDir(t *testing.T) {
 	testCreateFile(t, fs, "real_dir/sub_dir/real_file")
 	testReadDir(t, fs, "real_dir", map[string]bool{"real_file": false, "sub_dir": true})
 }
+
+func TestCannotReadFromDirectory(t *testing.T) {
+	fs := &memory{
+		files: map[string]File{},
+	}
+
+	testCreatingDirectory(t, fs, "real_dir")
+	testCannotReadFromDirectory(t, fs, "real_dir")
+}
+
+func TestCannotWriteInDirectory(t *testing.T) {
+	fs := &memory{
+		files: map[string]File{},
+	}
+
+	testCreatingDirectory(t, fs, "real_dir")
+	testCannotWriteInDirectory(t, fs, "real_dir")
+}

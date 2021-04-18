@@ -5,9 +5,10 @@ import (
 )
 
 var (
-	ErrFileNotFound = fmt.Errorf("File not found")
-	ErrClosedFile   = fmt.Errorf("Closed file")
-	ErrReservedName = fmt.Errorf("a file already exist with this name")
+	ErrFileNotFound                    = fmt.Errorf("File not found")
+	ErrClosedFile                      = fmt.Errorf("Closed file")
+	ErrReservedName                    = fmt.Errorf("a file already exist with this name")
+	ErrCannotReadOrWriteFromDirectiory = fmt.Errorf("Cannot read or write from a directory")
 )
 
 type FS interface {

@@ -119,11 +119,11 @@ func (fi *fileInfo) Name() string {
 type memoryDirectory struct{}
 
 func (md *memoryDirectory) Read(b []byte) (int, error) {
-	return 0, nil
+	return 0, ErrCannotReadOrWriteFromDirectiory
 }
 
 func (md *memoryDirectory) Write(b []byte) (int, error) {
-	return 0, nil
+	return 0, ErrCannotReadOrWriteFromDirectiory
 }
 
 func (md *memoryDirectory) Close() error {

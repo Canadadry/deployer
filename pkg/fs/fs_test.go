@@ -180,3 +180,33 @@ func testReadDir(t *testing.T, fs FS, name string, expectedFiles map[string]bool
 		}
 	}
 }
+
+func testCannotReadFromDirectory(t *testing.T, fs FS, name string) {
+	f, err := fs.Open(name)
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+	if f == nil {
+		t.Fatalf("should not have returned a nil file got %#v", f)
+	}
+
+	_, err = ioutil.ReadAll(f)
+	if err != ErrCannotReadOrWriteFromDirectiory {
+		t.Fatalf("should have returned en error got %#v want %#v", err, ErrCannotReadOrWriteFromDirectiory)
+	}
+}
+
+func testCannotWriteInDirectory(t *testing.T, fs FS, name string) {
+	f, err := fs.Open(name)
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+	if f == nil {
+		t.Fatalf("should not have returned a nil file got %#v", f)
+	}
+
+	_, err = fmt.Fprintf(f, "%s", "something")
+	if err != ErrCannotReadOrWriteFromDirectiory {
+		t.Fatalf("should have returned en error got %#v want %#v", err, ErrCannotReadOrWriteFromDirectiory)
+	}
+}
