@@ -16,7 +16,7 @@ func testOpeningNotExistingFile(t *testing.T, fs FS, name string) {
 	}
 }
 
-func testOpeningExistingFile(t *testing.T, fs FS, name string, content string) {
+func testOpeningExistingFileAndReading(t *testing.T, fs FS, name string, content string) {
 	f, err := fs.Open(name)
 	if err != nil {
 		t.Fatalf("should not have returned en error got %#v", err)
@@ -49,7 +49,7 @@ func testOpeningExistingFileAndWriting(t *testing.T, fs FS, name string, content
 		t.Fatalf("should not have returned en error got %#v", err)
 	}
 
-	testOpeningExistingFile(t, fs, name, content)
+	testOpeningExistingFileAndReading(t, fs, name, content)
 }
 
 func testOpeningExistingFile_CannotReadAfterClose(t *testing.T, fs FS, name string) {

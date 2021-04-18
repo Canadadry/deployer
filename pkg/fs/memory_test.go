@@ -4,7 +4,7 @@ import (
 	// "fmt"
 	// "reflect"
 	// "sort"
-	"bytes"
+	// "bytes"
 	"testing"
 )
 
@@ -13,22 +13,22 @@ func TestOpeningNotExistingFile(t *testing.T) {
 	testOpeningNotExistingFile(t, fs, "fake")
 }
 
-func TestOpeningExistingFile(t *testing.T) {
+func TestOpeningExistingFileAndReading(t *testing.T) {
 	fs := &memory{
-		files: map[string]memoryFile{
-			"real_file": memoryFile{
-				content: bytes.NewBufferString("file content"),
+		files: map[string]*memoryFile{
+			"real_file": &memoryFile{
+				content: []byte("file content"),
 			},
 		},
 	}
-	testOpeningExistingFile(t, fs, "real_file", "file content")
+	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
 }
 
 func TestOpeningExistingFileAndWriting(t *testing.T) {
 	fs := &memory{
-		files: map[string]memoryFile{
-			"real_file": memoryFile{
-				content: bytes.NewBufferString(""),
+		files: map[string]*memoryFile{
+			"real_file": &memoryFile{
+				content: []byte(""),
 			},
 		},
 	}
@@ -37,9 +37,9 @@ func TestOpeningExistingFileAndWriting(t *testing.T) {
 
 func TestOpeningExistingFile_CannotReadAfterClose(t *testing.T) {
 	fs := &memory{
-		files: map[string]memoryFile{
-			"real_file": memoryFile{
-				content: bytes.NewBufferString(""),
+		files: map[string]*memoryFile{
+			"real_file": &memoryFile{
+				content: []byte(""),
 			},
 		},
 	}
@@ -48,9 +48,9 @@ func TestOpeningExistingFile_CannotReadAfterClose(t *testing.T) {
 
 func TestOpeningExistingFile_CannotWriteAfterClose(t *testing.T) {
 	fs := &memory{
-		files: map[string]memoryFile{
-			"real_file": memoryFile{
-				content: bytes.NewBufferString(""),
+		files: map[string]*memoryFile{
+			"real_file": &memoryFile{
+				content: []byte(""),
 			},
 		},
 	}
@@ -59,11 +59,35 @@ func TestOpeningExistingFile_CannotWriteAfterClose(t *testing.T) {
 
 func TestOpeningExistingFile_CannotCloseTwice(t *testing.T) {
 	fs := &memory{
-		files: map[string]memoryFile{
-			"real_file": memoryFile{
-				content: bytes.NewBufferString(""),
+		files: map[string]*memoryFile{
+			"real_file": &memoryFile{
+				content: []byte(""),
 			},
 		},
 	}
 	testOpeningExistingFile_CannotCloseTwice(t, fs, "real_file")
+}
+
+func Test_CanOpenTwiceAFile(t *testing.T) {
+	fs := &memory{
+		files: map[string]*memoryFile{
+			"real_file": &memoryFile{
+				content: []byte("file content"),
+			},
+		},
+	}
+	testOpeningExistingFile_CannotReadAfterClose(t, fs, "real_file")
+	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
+}
+
+func Test_CanReadAfterWrite(t *testing.T) {
+	fs := &memory{
+		files: map[string]*memoryFile{
+			"real_file": &memoryFile{
+				content: []byte(""),
+			},
+		},
+	}
+	testOpeningExistingFileAndWriting(t, fs, "real_file", "file content")
+	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
 }

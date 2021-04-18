@@ -1,11 +1,11 @@
 package fs
 
 import (
-	"bytes"
+	"io"
 )
 
 type memory struct {
-	files map[string]memoryFile
+	files map[string]*memoryFile
 }
 
 func (m *memory) Open(name string) (File, error) {
@@ -13,7 +13,9 @@ func (m *memory) Open(name string) (File, error) {
 	if !ok {
 		return nil, ErrFileNotFound
 	}
-	return &f, nil
+	f.open = true
+	f.pos = 0
+	return f, nil
 }
 
 func (m *memory) Delete(name string) error {
@@ -33,28 +35,39 @@ func (m *memory) ReadDir(name string) ([]FileInfo, error) {
 }
 
 type memoryFile struct {
-	content *bytes.Buffer
+	content []byte
+	pos     int
+	open    bool
 }
 
 func (mf *memoryFile) Read(b []byte) (int, error) {
-	if mf.content == nil {
+	if mf.open == false {
 		return 0, ErrClosedFile
 	}
-	return mf.content.Read(b)
+	if mf.pos >= len(mf.content) {
+		return 0, io.EOF
+	}
+	n := copy(b, mf.content[mf.pos:])
+	mf.pos += n
+	return n, nil
 }
+
 func (mf *memoryFile) Write(b []byte) (int, error) {
-	if mf.content == nil {
+	if mf.open == false {
 		return 0, ErrClosedFile
 	}
-	return mf.content.Write(b)
+	mf.content = append(mf.content, b...)
+	return len(b), nil
 }
+
 func (mf *memoryFile) Close() error {
-	if mf.content == nil {
+	if mf.open == false {
 		return ErrClosedFile
 	}
-	mf.content = nil
+	mf.open = false
 	return nil
 }
+
 func (mf *memoryFile) Stat() FileInfo {
 	return nil
 }
