@@ -26,5 +26,6 @@ type File interface {
 }
 
 type FileInfo interface {
+	Name() string
 	IsDir() bool
 }

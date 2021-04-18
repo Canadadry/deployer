@@ -45,7 +45,17 @@ func (m *memory) New(name string) (File, error) {
 }
 
 func (m *memory) ReadDir(name string) ([]FileInfo, error) {
-	return nil, nil
+	prefix := name + "/"
+	list := []FileInfo{}
+	for k := range m.files {
+		if len(k) <= len(prefix) {
+			continue
+		}
+		if k[:len(prefix)] == prefix {
+			list = append(list, &fileInfo{name: k[len(prefix):]})
+		}
+	}
+	return list, nil
 }
 
 type memoryFile struct {
@@ -87,11 +97,16 @@ func (mf *memoryFile) Stat() FileInfo {
 }
 
 type fileInfo struct {
+	name  string
 	isDir bool
 }
 
 func (fi *fileInfo) IsDir() bool {
 	return fi.isDir
+}
+
+func (fi *fileInfo) Name() string {
+	return fi.name
 }
 
 type memoryDirectory struct{}

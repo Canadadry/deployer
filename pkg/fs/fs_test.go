@@ -159,3 +159,13 @@ func testCreatingDirectoryOnExistingFile(t *testing.T, fs FS, name string) {
 		t.Fatalf("should have returned en error got %#v want %#v", err, ErrReservedName)
 	}
 }
+
+func testReadDir(t *testing.T, fs FS, name string, expectedFiles []string) {
+	infos, err := fs.ReadDir(name)
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+	if len(infos) != len(expectedFiles) {
+		t.Fatalf("should have returned %d files  got %v", len(expectedFiles), len(infos))
+	}
+}
