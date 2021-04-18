@@ -160,12 +160,23 @@ func testCreatingDirectoryOnExistingFile(t *testing.T, fs FS, name string) {
 	}
 }
 
-func testReadDir(t *testing.T, fs FS, name string, expectedFiles []string) {
+func testReadDir(t *testing.T, fs FS, name string, expectedFiles map[string]bool) {
 	infos, err := fs.ReadDir(name)
 	if err != nil {
 		t.Fatalf("should not have returned en error got %#v", err)
 	}
 	if len(infos) != len(expectedFiles) {
 		t.Fatalf("should have returned %d files  got %v", len(expectedFiles), len(infos))
+	}
+
+	for _, i := range infos {
+		name := i.Name()
+		isDir, ok := expectedFiles[name]
+		if !ok {
+			t.Fatalf("found file %s that is not in expected files", name)
+		}
+		if i.IsDir() != isDir {
+			t.Fatalf("file stats IsDir should return %v got %v ", isDir, i.IsDir())
+		}
 	}
 }

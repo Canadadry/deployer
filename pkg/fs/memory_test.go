@@ -167,11 +167,11 @@ func TestReadDir(t *testing.T) {
 	}
 
 	testCreatingDirectory(t, fs, "real_dir")
-	testReadDir(t, fs, "real_dir", []string{})
+	testReadDir(t, fs, "real_dir", map[string]bool{})
 	testCreateFile(t, fs, "real_dir/real_file")
-	testReadDir(t, fs, "real_dir", []string{"real_file"})
+	testReadDir(t, fs, "real_dir", map[string]bool{"real_file": false})
 	testCreatingDirectory(t, fs, "real_dir/sub_dir")
-	testReadDir(t, fs, "real_dir", []string{"real_file", "sub_dir"})
+	testReadDir(t, fs, "real_dir", map[string]bool{"real_file": false, "sub_dir": true})
 	testCreateFile(t, fs, "real_dir/sub_dir/real_file")
-	testReadDir(t, fs, "real_dir", []string{"real_file", "sub_dir"})
+	testReadDir(t, fs, "real_dir", map[string]bool{"real_file": false, "sub_dir": true})
 }

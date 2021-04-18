@@ -48,7 +48,7 @@ func (m *memory) New(name string) (File, error) {
 func (m *memory) ReadDir(name string) ([]FileInfo, error) {
 	prefix := name + "/"
 	list := []FileInfo{}
-	for k := range m.files {
+	for k, f := range m.files {
 		if len(k) <= len(prefix) {
 			continue
 		}
@@ -59,7 +59,8 @@ func (m *memory) ReadDir(name string) ([]FileInfo, error) {
 		if strings.Contains(file, "/") {
 			continue
 		}
-		list = append(list, &fileInfo{name: file})
+		_, isDir := f.(*memoryDirectory)
+		list = append(list, &fileInfo{name: file, isDir: isDir})
 	}
 	return list, nil
 }
