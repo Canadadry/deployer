@@ -91,3 +91,14 @@ func Test_CanReadAfterWrite(t *testing.T) {
 	testOpeningExistingFileAndWriting(t, fs, "real_file", "file content")
 	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
 }
+
+func TestOpeningExistingFile_GetSatIsDir(t *testing.T) {
+	fs := &memory{
+		files: map[string]*memoryFile{
+			"real_file": &memoryFile{
+				content: []byte(""),
+			},
+		},
+	}
+	testOpeningExistingFile_GetSatIsDir(t, fs, "real_file", false)
+}

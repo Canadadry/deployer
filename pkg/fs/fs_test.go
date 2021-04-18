@@ -113,3 +113,18 @@ func testOpeningExistingFile_CannotCloseTwice(t *testing.T, fs FS, name string) 
 		t.Fatalf("can read : should have returned en error got %#v want %#v", err, ErrClosedFile)
 	}
 }
+
+func testOpeningExistingFile_GetSatIsDir(t *testing.T, fs FS, name string, isDir bool) {
+	f, err := fs.Open(name)
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
+	if f == nil {
+		t.Fatalf("should not have returned a nil file got %#v", f)
+	}
+
+	if f.Stat().IsDir() != isDir {
+		t.Fatalf("file stats IsDir should return %v got %v ", isDir, f.Stat().IsDir())
+	}
+
+}

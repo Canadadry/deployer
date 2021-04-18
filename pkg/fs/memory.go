@@ -69,5 +69,13 @@ func (mf *memoryFile) Close() error {
 }
 
 func (mf *memoryFile) Stat() FileInfo {
-	return nil
+	return &fileInfo{}
+}
+
+type fileInfo struct {
+	isDir bool
+}
+
+func (fi *fileInfo) IsDir() bool {
+	return fi.isDir
 }
