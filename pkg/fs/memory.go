@@ -19,6 +19,7 @@ func (m *memory) Open(name string) (File, error) {
 }
 
 func (m *memory) Delete(name string) error {
+	delete(m.files, name)
 	return nil
 }
 

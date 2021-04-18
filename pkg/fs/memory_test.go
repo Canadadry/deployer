@@ -1,10 +1,6 @@
 package fs
 
 import (
-	// "fmt"
-	// "reflect"
-	// "sort"
-	// "bytes"
 	"testing"
 )
 
@@ -101,4 +97,17 @@ func TestOpeningExistingFile_GetSatIsDir(t *testing.T) {
 		},
 	}
 	testOpeningExistingFile_GetSatIsDir(t, fs, "real_file", false)
+}
+
+func TestDeleteFile(t *testing.T) {
+	fs := &memory{
+		files: map[string]*memoryFile{
+			"real_file": &memoryFile{
+				content: []byte("file content"),
+			},
+		},
+	}
+	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
+	testDeleteFile(t, fs, "real_file")
+	testOpeningNotExistingFile(t, fs, "real_file")
 }

@@ -126,5 +126,11 @@ func testOpeningExistingFile_GetSatIsDir(t *testing.T, fs FS, name string, isDir
 	if f.Stat().IsDir() != isDir {
 		t.Fatalf("file stats IsDir should return %v got %v ", isDir, f.Stat().IsDir())
 	}
+}
 
+func testDeleteFile(t *testing.T, fs FS, name string) {
+	err := fs.Delete(name)
+	if err != nil {
+		t.Fatalf("should not have returned en error got %#v", err)
+	}
 }
