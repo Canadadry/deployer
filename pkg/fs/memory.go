@@ -2,6 +2,7 @@ package fs
 
 import (
 	"io"
+	"strings"
 )
 
 type memory struct {
@@ -51,9 +52,14 @@ func (m *memory) ReadDir(name string) ([]FileInfo, error) {
 		if len(k) <= len(prefix) {
 			continue
 		}
-		if k[:len(prefix)] == prefix {
-			list = append(list, &fileInfo{name: k[len(prefix):]})
+		if k[:len(prefix)] != prefix {
+			continue
 		}
+		file := k[len(prefix):]
+		if strings.Contains(file, "/") {
+			continue
+		}
+		list = append(list, &fileInfo{name: file})
 	}
 	return list, nil
 }

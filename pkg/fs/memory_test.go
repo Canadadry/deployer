@@ -170,4 +170,8 @@ func TestReadDir(t *testing.T) {
 	testReadDir(t, fs, "real_dir", []string{})
 	testCreateFile(t, fs, "real_dir/real_file")
 	testReadDir(t, fs, "real_dir", []string{"real_file"})
+	testCreatingDirectory(t, fs, "real_dir/sub_dir")
+	testReadDir(t, fs, "real_dir", []string{"real_file", "sub_dir"})
+	testCreateFile(t, fs, "real_dir/sub_dir/real_file")
+	testReadDir(t, fs, "real_dir", []string{"real_file", "sub_dir"})
 }
