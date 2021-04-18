@@ -6,133 +6,133 @@ import (
 
 func TestOpeningNotExistingFile(t *testing.T) {
 	fs := &memory{}
-	testOpeningNotExistingFile(t, fs, "fake")
+	testOpeningNotExistingFile(t, fs, "not_existing_file")
 }
 
 func TestOpeningExistingFileAndReading(t *testing.T) {
 	fs := &memory{
 		files: map[string]File{
-			"real_file": &memoryFile{
+			"file_with_content": &memoryFile{
 				content: []byte("file content"),
 			},
 		},
 	}
-	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
+	testOpeningExistingFileAndReading(t, fs, "file_with_content", "file content")
 }
 
 func TestOpeningExistingFileAndWriting(t *testing.T) {
 	fs := &memory{
 		files: map[string]File{
-			"real_file": &memoryFile{
+			"empty_file": &memoryFile{
 				content: []byte(""),
 			},
 		},
 	}
-	testOpeningExistingFileAndWriting(t, fs, "real_file", "file content")
+	testOpeningExistingFileAndWriting(t, fs, "empty_file", "file content")
 }
 
 func TestOpeningExistingFile_CannotReadAfterClose(t *testing.T) {
 	fs := &memory{
 		files: map[string]File{
-			"real_file": &memoryFile{
+			"empty_file": &memoryFile{
 				content: []byte(""),
 			},
 		},
 	}
-	testOpeningExistingFile_CannotReadAfterClose(t, fs, "real_file")
+	testOpeningExistingFile_CannotReadAfterClose(t, fs, "empty_file")
 }
 
 func TestOpeningExistingFile_CannotWriteAfterClose(t *testing.T) {
 	fs := &memory{
 		files: map[string]File{
-			"real_file": &memoryFile{
+			"empty_file": &memoryFile{
 				content: []byte(""),
 			},
 		},
 	}
-	testOpeningExistingFile_CannotWriteAfterClose(t, fs, "real_file")
+	testOpeningExistingFile_CannotWriteAfterClose(t, fs, "empty_file")
 }
 
 func TestOpeningExistingFile_CannotCloseTwice(t *testing.T) {
 	fs := &memory{
 		files: map[string]File{
-			"real_file": &memoryFile{
+			"empty_file": &memoryFile{
 				content: []byte(""),
 			},
 		},
 	}
-	testOpeningExistingFile_CannotCloseTwice(t, fs, "real_file")
+	testOpeningExistingFile_CannotCloseTwice(t, fs, "empty_file")
 }
 
 func Test_CanOpenTwiceAFile(t *testing.T) {
 	fs := &memory{
 		files: map[string]File{
-			"real_file": &memoryFile{
+			"file_with_content": &memoryFile{
 				content: []byte("file content"),
 			},
 		},
 	}
-	testOpeningExistingFile_CannotReadAfterClose(t, fs, "real_file")
-	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
+	testOpeningExistingFile_CannotReadAfterClose(t, fs, "file_with_content")
+	testOpeningExistingFileAndReading(t, fs, "file_with_content", "file content")
 }
 
 func Test_CanReadAfterWrite(t *testing.T) {
 	fs := &memory{
 		files: map[string]File{
-			"real_file": &memoryFile{
+			"empty_file": &memoryFile{
 				content: []byte(""),
 			},
 		},
 	}
-	testOpeningExistingFileAndWriting(t, fs, "real_file", "file content")
-	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
+	testOpeningExistingFileAndWriting(t, fs, "empty_file", "file content")
+	testOpeningExistingFileAndReading(t, fs, "empty_file", "file content")
 }
 
 func TestOpeningExistingFile_GetSatIsDir(t *testing.T) {
 	fs := &memory{
 		files: map[string]File{
-			"real_file": &memoryFile{
+			"empty_file": &memoryFile{
 				content: []byte(""),
 			},
 		},
 	}
-	testOpeningExistingFile_GetSatIsDir(t, fs, "real_file", false)
+	testOpeningExistingFile_GetSatIsDir(t, fs, "empty_file", false)
 }
 
 func TestDeleteFile(t *testing.T) {
 	fs := &memory{
 		files: map[string]File{
-			"real_file": &memoryFile{
+			"file_with_content": &memoryFile{
 				content: []byte("file content"),
 			},
 		},
 	}
-	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
-	testDeleteFile(t, fs, "real_file")
-	testOpeningNotExistingFile(t, fs, "real_file")
+	testOpeningExistingFileAndReading(t, fs, "file_with_content", "file content")
+	testDeleteFile(t, fs, "file_with_content")
+	testOpeningNotExistingFile(t, fs, "file_with_content")
 }
 
 func TestCreatingFile(t *testing.T) {
 	fs := &memory{files: map[string]File{}}
 
-	testOpeningNotExistingFile(t, fs, "real_file")
-	testCreateFile(t, fs, "real_file")
-	testOpeningExistingFileAndWriting(t, fs, "real_file", "file content")
-	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
+	testOpeningNotExistingFile(t, fs, "not_existing_file")
+	testCreateFile(t, fs, "not_existing_file")
+	testOpeningExistingFileAndWriting(t, fs, "not_existing_file", "file content")
+	testOpeningExistingFileAndReading(t, fs, "not_existing_file", "file content")
 }
 
 func TestCreatingFile_WhileFileExist_TruncateIt(t *testing.T) {
 	fs := &memory{
 		files: map[string]File{
-			"real_file": &memoryFile{
+			"file_with_content": &memoryFile{
 				content: []byte("file content"),
 			},
 		},
 	}
 
-	testOpeningExistingFileAndReading(t, fs, "real_file", "file content")
-	testCreateFile(t, fs, "real_file")
-	testOpeningExistingFileAndReading(t, fs, "real_file", "")
+	testOpeningExistingFileAndReading(t, fs, "file_with_content", "file content")
+	testCreateFile(t, fs, "file_with_content")
+	testOpeningExistingFileAndReading(t, fs, "file_with_content", "")
 }
 
 func TestCreatingDirectory(t *testing.T) {
@@ -140,7 +140,7 @@ func TestCreatingDirectory(t *testing.T) {
 		files: map[string]File{},
 	}
 
-	testCreatingDirectory(t, fs, "real_dir")
+	testCreatingDirectory(t, fs, "not_exisiting_dir")
 }
 
 func TestOpeningDirectory(t *testing.T) {
@@ -148,8 +148,8 @@ func TestOpeningDirectory(t *testing.T) {
 		files: map[string]File{},
 	}
 
-	testCreatingDirectory(t, fs, "real_dir")
-	testOpeningDirectory(t, fs, "real_dir")
+	testCreatingDirectory(t, fs, "not_exisiting_dir")
+	testOpeningDirectory(t, fs, "not_exisiting_dir")
 }
 
 func TestCreatingDirectoryOnExistingFile(t *testing.T) {
@@ -157,8 +157,8 @@ func TestCreatingDirectoryOnExistingFile(t *testing.T) {
 		files: map[string]File{},
 	}
 
-	testCreateFile(t, fs, "real_file")
-	testCreatingDirectoryOnExistingFile(t, fs, "real_file")
+	testCreateFile(t, fs, "not_exisiting_dir")
+	testCreatingDirectoryOnExistingFile(t, fs, "not_exisiting_dir")
 }
 
 func TestReadDir(t *testing.T) {
@@ -166,14 +166,14 @@ func TestReadDir(t *testing.T) {
 		files: map[string]File{},
 	}
 
-	testCreatingDirectory(t, fs, "real_dir")
-	testReadDir(t, fs, "real_dir", map[string]bool{})
-	testCreateFile(t, fs, "real_dir/real_file")
-	testReadDir(t, fs, "real_dir", map[string]bool{"real_file": false})
-	testCreatingDirectory(t, fs, "real_dir/sub_dir")
-	testReadDir(t, fs, "real_dir", map[string]bool{"real_file": false, "sub_dir": true})
-	testCreateFile(t, fs, "real_dir/sub_dir/real_file")
-	testReadDir(t, fs, "real_dir", map[string]bool{"real_file": false, "sub_dir": true})
+	testCreatingDirectory(t, fs, "not_exisiting_dir")
+	testReadDir(t, fs, "not_exisiting_dir", map[string]bool{})
+	testCreateFile(t, fs, "not_exisiting_dir/not_exisiting_file")
+	testReadDir(t, fs, "not_exisiting_dir", map[string]bool{"not_exisiting_file": false})
+	testCreatingDirectory(t, fs, "not_exisiting_dir/not_exisiting_dir")
+	testReadDir(t, fs, "not_exisiting_dir", map[string]bool{"not_exisiting_file": false, "not_exisiting_dir": true})
+	testCreateFile(t, fs, "not_exisiting_dir/not_exisiting_dir/real_file")
+	testReadDir(t, fs, "not_exisiting_dir", map[string]bool{"not_exisiting_file": false, "not_exisiting_dir": true})
 }
 
 func TestCannotReadFromDirectory(t *testing.T) {
@@ -181,8 +181,8 @@ func TestCannotReadFromDirectory(t *testing.T) {
 		files: map[string]File{},
 	}
 
-	testCreatingDirectory(t, fs, "real_dir")
-	testCannotReadFromDirectory(t, fs, "real_dir")
+	testCreatingDirectory(t, fs, "not_exisiting_dir")
+	testCannotReadFromDirectory(t, fs, "not_exisiting_dir")
 }
 
 func TestCannotWriteInDirectory(t *testing.T) {
@@ -190,6 +190,6 @@ func TestCannotWriteInDirectory(t *testing.T) {
 		files: map[string]File{},
 	}
 
-	testCreatingDirectory(t, fs, "real_dir")
-	testCannotWriteInDirectory(t, fs, "real_dir")
+	testCreatingDirectory(t, fs, "not_exisiting_dir")
+	testCannotWriteInDirectory(t, fs, "not_exisiting_dir")
 }
