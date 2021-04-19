@@ -3,68 +3,69 @@ package fs
 import (
 	"fmt"
 	"io/ioutil"
+	"sort"
 	"testing"
 )
 
 func runAllTestCase(t *testing.T, newFs func(t *testing.T) FS) {
 	tests := map[string]func(t *testing.T, fs FS){
-		"TestOpeningNotExistingFile": func(t *testing.T, fs FS) {
+		"00_TestOpeningNotExistingFile": func(t *testing.T, fs FS) {
 			testOpeningNotExistingFile(t, fs, "not_existing_file")
 		},
-		"TestOpeningExistingFileAndReading": func(t *testing.T, fs FS) {
+		"01_TestOpeningExistingFileAndReading": func(t *testing.T, fs FS) {
 			testOpeningExistingFileAndReading(t, fs, "file_with_content", "file content")
 		},
-		"TestOpeningExistingFileAndWriting": func(t *testing.T, fs FS) {
+		"02_TestOpeningExistingFileAndWriting": func(t *testing.T, fs FS) {
 			testOpeningExistingFileAndWriting(t, fs, "empty_file", "file content")
 		},
-		"TestOpeningExistingFile_CannotReadAfterClose": func(t *testing.T, fs FS) {
+		"03_TestOpeningExistingFile_CannotReadAfterClose": func(t *testing.T, fs FS) {
 			testOpeningExistingFile_CannotReadAfterClose(t, fs, "empty_file")
 		},
-		"TestOpeningExistingFile_CannotWriteAfterClose": func(t *testing.T, fs FS) {
+		"04_TestOpeningExistingFile_CannotWriteAfterClose": func(t *testing.T, fs FS) {
 			testOpeningExistingFile_CannotWriteAfterClose(t, fs, "empty_file")
 		},
-		"TestOpeningExistingFile_CannotCloseTwice": func(t *testing.T, fs FS) {
+		"05_TestOpeningExistingFile_CannotCloseTwice": func(t *testing.T, fs FS) {
 			testOpeningExistingFile_CannotCloseTwice(t, fs, "empty_file")
 		},
-		"Test_CanOpenTwiceAFile": func(t *testing.T, fs FS) {
+		"06_Test_CanOpenTwiceAFile": func(t *testing.T, fs FS) {
 			testOpeningExistingFile_CannotReadAfterClose(t, fs, "file_with_content")
 			testOpeningExistingFileAndReading(t, fs, "file_with_content", "file content")
 		},
-		"Test_CanReadAfterWrite": func(t *testing.T, fs FS) {
+		"07_Test_CanReadAfterWrite": func(t *testing.T, fs FS) {
 			testOpeningExistingFile_CannotReadAfterClose(t, fs, "file_with_content")
 			testOpeningExistingFileAndReading(t, fs, "file_with_content", "file content")
 		},
-		"TestOpeningExistingFile_GetSatIsDir": func(t *testing.T, fs FS) {
+		"08_TestOpeningExistingFile_GetSatIsDir": func(t *testing.T, fs FS) {
 			testOpeningExistingFile_GetSatIsDir(t, fs, "empty_file", false)
 		},
-		"TestDeleteFile": func(t *testing.T, fs FS) {
+		"09_TestDeleteFile": func(t *testing.T, fs FS) {
 			testOpeningExistingFileAndReading(t, fs, "file_with_content", "file content")
 			testDeleteFile(t, fs, "file_with_content")
 			testOpeningNotExistingFile(t, fs, "file_with_content")
 		},
-		"TestCreatingFile": func(t *testing.T, fs FS) {
+		"10_TestCreatingFile": func(t *testing.T, fs FS) {
 			testOpeningNotExistingFile(t, fs, "not_existing_file")
 			testCreateFile(t, fs, "not_existing_file")
 			testOpeningExistingFileAndWriting(t, fs, "not_existing_file", "file content")
 			testOpeningExistingFileAndReading(t, fs, "not_existing_file", "file content")
 		},
-		"TestCreatingFile_WhileFileExist_TruncateIt": func(t *testing.T, fs FS) {
+		"11_TestCreatingFile_WhileFileExist_TruncateIt": func(t *testing.T, fs FS) {
 			testOpeningExistingFileAndReading(t, fs, "file_with_content", "file content")
 			testCreateFile(t, fs, "file_with_content")
 			testOpeningExistingFileAndReading(t, fs, "file_with_content", "")
 		},
-		"TestCreatingDirectory": func(t *testing.T, fs FS) {
+		"12_TestCreatingDirectory": func(t *testing.T, fs FS) {
 			testCreatingDirectory(t, fs, "not_exisiting_dir")
 		},
-		"TestOpeningDirectory": func(t *testing.T, fs FS) {
+		"13_TestOpeningDirectory": func(t *testing.T, fs FS) {
 			testCreatingDirectory(t, fs, "not_exisiting_dir")
 			testOpeningDirectory(t, fs, "not_exisiting_dir")
 		},
-		"TestCreatingDirectoryOnExistingFile": func(t *testing.T, fs FS) {
+		"14_TestCreatingDirectoryOnExistingFile": func(t *testing.T, fs FS) {
 			testCreateFile(t, fs, "not_exisiting_dir")
 			testCreatingDirectoryOnExistingFile(t, fs, "not_exisiting_dir")
 		},
-		"TestReadDir": func(t *testing.T, fs FS) {
+		"15_TestReadDir": func(t *testing.T, fs FS) {
 			testCreatingDirectory(t, fs, "not_exisiting_dir")
 			testReadDir(t, fs, "not_exisiting_dir", map[string]bool{})
 			testCreateFile(t, fs, "not_exisiting_dir/not_exisiting_file")
@@ -74,17 +75,23 @@ func runAllTestCase(t *testing.T, newFs func(t *testing.T) FS) {
 			testCreateFile(t, fs, "not_exisiting_dir/not_exisiting_dir/real_file")
 			testReadDir(t, fs, "not_exisiting_dir", map[string]bool{"not_exisiting_file": false, "not_exisiting_dir": true})
 		},
-		"TestCannotReadFromDirectory": func(t *testing.T, fs FS) {
+		"16_TestCannotReadFromDirectory": func(t *testing.T, fs FS) {
 			testCreatingDirectory(t, fs, "not_exisiting_dir")
 			testCannotReadFromDirectory(t, fs, "not_exisiting_dir")
 		},
-		"TestCannotWriteInDirectory": func(t *testing.T, fs FS) {
+		"17_TestCannotWriteInDirectory": func(t *testing.T, fs FS) {
 			testCreatingDirectory(t, fs, "not_exisiting_dir")
 			testCannotWriteInDirectory(t, fs, "not_exisiting_dir")
 		},
 	}
+	titles := []string{}
+	for title := range tests {
+		titles = append(titles, title)
+	}
+	sort.Strings(titles)
 
-	for title, tt := range tests {
+	for _, title := range titles {
+		tt := tests[title]
 		t.Run(title, func(t *testing.T) {
 			tt(t, newFs(t))
 		})
