@@ -4,8 +4,8 @@ import (
 	"testing"
 )
 
-func TestAllCase(t *testing.T) {
-	runAllTestCase(t, func() FS {
+func TestAllCaseFomMemory(t *testing.T) {
+	runAllTestCase(t, func(t *testing.T) FS {
 		return &memory{
 			files: map[string]File{
 				"file_with_content": &memoryFile{

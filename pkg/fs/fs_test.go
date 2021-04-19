@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func runAllTestCase(t *testing.T, newFs func() FS) {
+func runAllTestCase(t *testing.T, newFs func(t *testing.T) FS) {
 	tests := map[string]func(t *testing.T, fs FS){
 		"TestOpeningNotExistingFile": func(t *testing.T, fs FS) {
 			testOpeningNotExistingFile(t, fs, "not_existing_file")
@@ -86,7 +86,7 @@ func runAllTestCase(t *testing.T, newFs func() FS) {
 
 	for title, tt := range tests {
 		t.Run(title, func(t *testing.T) {
-			tt(t, newFs())
+			tt(t, newFs(t))
 		})
 	}
 }
