@@ -12,6 +12,7 @@ func (c *client) Run(path string, cmd string) (string, error) {
 	defer session.Close()
 	b := &bytes.Buffer{}
 	session.Stdout = b
+	session.Stderr = b
 	err = session.Run(cmd)
 	return b.String(), err
 }
