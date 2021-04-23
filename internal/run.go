@@ -3,6 +3,7 @@ package internal
 import (
 	"app/internal/env"
 	"app/internal/runner"
+	"app/pkg/ansi"
 	"app/pkg/monkey"
 	"app/pkg/monkey/object"
 	"flag"
@@ -72,22 +73,22 @@ task("test","mydesc",fn(){
 
 func PrintHelp(fs *flag.FlagSet, tasks map[string]env.Task) {
 	fmt.Println(fs.Name())
-	fmt.Print(`
-Usage:
-Command [option]
-
-Options:
-
-`)
+	fmt.Println()
+	fmt.Println(ansi.Yellow("Usage:"))
+	fmt.Println()
+	fmt.Println("   deployer Command [option]")
+	fmt.Println()
+	fmt.Println(ansi.Yellow("Options:"))
+	fmt.Println()
 	fs.PrintDefaults()
-	fmt.Print(`
-Available commands:
-
-  init   Initialize deployer in your project
-  list   Lists commands`)
+	fmt.Println()
+	fmt.Println(ansi.Yellow("Available commands"))
+	fmt.Println()
+	fmt.Println(ansi.Green("   init   ") + "Initialize deployer in your project")
+	fmt.Println(ansi.Green("   list   ") + "Lists commands")
 
 	for _, t := range tasks {
-		fmt.Printf("\n  %s   %s", t.Title, t.Description)
+		fmt.Printf(ansi.Green("   %s")+"   %s\n", t.Title, t.Description)
 	}
 	fmt.Printf("\n\n")
 }
