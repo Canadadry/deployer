@@ -14,13 +14,13 @@ type Task struct {
 }
 
 type Environment struct {
-	store map[string]string
+	Store map[string]string
 	Tasks map[string]Task
 }
 
 func New() Environment {
 	return Environment{
-		store: map[string]string{},
+		Store: map[string]string{},
 		Tasks: map[string]Task{},
 	}
 }
@@ -55,7 +55,7 @@ func (e *Environment) Set(args ...object.Object) object.Object {
 	if len(args) != 2 {
 		return &object.Error{Message: fmt.Sprintf("set should have only two parameters,got %d", len(args))}
 	}
-	e.store[args[0].Inspect()] = args[1].Inspect()
+	e.Store[args[0].Inspect()] = args[1].Inspect()
 	return object.NULL
 }
 
@@ -63,7 +63,7 @@ func (e *Environment) Get(args ...object.Object) object.Object {
 	if len(args) != 1 {
 		return &object.Error{Message: fmt.Sprintf("get should have only one parameter ,got %d", len(args))}
 	}
-	str, ok := e.store[args[0].Inspect()]
+	str, ok := e.Store[args[0].Inspect()]
 	if !ok {
 		return object.NULL
 	}

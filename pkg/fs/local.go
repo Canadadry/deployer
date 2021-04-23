@@ -9,6 +9,9 @@ type local struct {
 	base string
 }
 
+func NewLocal(base string) *local {
+	return &local{base: base}
+}
 func (l *local) Open(name string) (File, error) {
 	stat, err := os.Stat(l.base + name)
 	if err != nil {

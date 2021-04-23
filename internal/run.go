@@ -4,8 +4,10 @@ import (
 	"app/internal/env"
 	"app/internal/runner"
 	"app/pkg/ansi"
+	"app/pkg/fs"
 	"app/pkg/monkey"
 	"app/pkg/monkey/object"
+	"app/pkg/ssh"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -14,13 +16,13 @@ import (
 )
 
 func Run(args []string) error {
-	fs := flag.NewFlagSet(args[0], flag.ExitOnError)
-	file := fs.String("f", "deploy.mky", "Specify deployer file")
-	dryrun := fs.Bool("dry", false, "dry run : only print action")
+	flag := flag.NewFlagSet(args[0], flag.ExitOnError)
+	file := flag.String("f", "deploy.mky", "Specify deployer file")
+	dryrun := flag.Bool("dry", false, "dry run : only print action")
 
-	fs.Parse(args[1:])
+	flag.Parse(args[1:])
 
-	nonFlagArgs := fs.Args()
+	nonFlagArgs := flag.Args()
 	command := "list"
 	if len(nonFlagArgs) > 0 {
 		command = nonFlagArgs[0]
@@ -50,12 +52,12 @@ task("test","mydesc",fn(){
 	}
 
 	if command == "list" {
-		PrintHelp(fs, e.Tasks)
+		PrintHelp(flag, e.Tasks)
 		return nil
 	}
 	_, ok := e.Tasks[command]
 	if !ok {
-		PrintHelp(fs, e.Tasks)
+		PrintHelp(flag, e.Tasks)
 		return fmt.Errorf("Invalid command : %s", command)
 	}
 
@@ -64,7 +66,44 @@ task("test","mydesc",fn(){
 	if *dryrun {
 		r = runner.NewDryRun(os.Stdout)
 	} else {
-		r = runner.New()
+		run := runner.New()
+		host_path, ok := e.Store["host_path"]
+		if !ok {
+			host_path = "~/"
+		}
+		host_addr, ok := e.Store["host_addr"]
+		if !ok {
+			return fmt.Errorf("you must set the key 'host_addr'")
+		}
+		host_port, ok := e.Store["host_port"]
+		if !ok {
+			host_port = "22"
+		}
+
+		host_user, ok := e.Store["host_user"]
+		if !ok {
+			return fmt.Errorf("you must set the key 'host_user'")
+		}
+		host_private_key_name, ok := e.Store["host_private_key"]
+		if !ok {
+			host_private_key_name = "~/.ssh/id_rsa"
+		}
+		host_private_key, err := ioutil.ReadFile(host_private_key_name)
+		if err != nil {
+			return err
+		}
+		run.Ssh, err = ssh.New(ssh.Login{
+			Addr:       host_addr,
+			Port:       host_port,
+			User:       host_user,
+			PrivateKey: string(host_private_key),
+		})
+		if err != nil {
+			return err
+		}
+		run.Local = fs.NewLocal("./")
+		run.DistantPath = host_path
+		r = run
 	}
 	eval.SetEnv("run", &object.Builtin{Fn: env.Run(r)})
 	eval.SetEnv("runLocally", &object.Builtin{Fn: env.RunLocally(r)})

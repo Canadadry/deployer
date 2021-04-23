@@ -18,7 +18,7 @@ type Ssh interface {
 
 type Login struct {
 	Addr                  string
-	Port                  int
+	Port                  string
 	User                  string
 	PrivateKey            string
 	Password              string
@@ -61,8 +61,11 @@ func New(l Login) (*client, error) {
 		}
 
 	}
+	if l.Port == "" {
+		l.Port = "22"
+	}
 
-	c, err := ssh.Dial("tcp", net.JoinHostPort(l.Addr, fmt.Sprintf("%d", l.Port)), config)
+	c, err := ssh.Dial("tcp", net.JoinHostPort(l.Addr, l.Port), config)
 	if err != nil {
 		return nil, err
 	}
