@@ -4,6 +4,7 @@ import (
 	"app/internal/runner"
 	"app/pkg/monkey/object"
 	"fmt"
+	"os"
 )
 
 type Task struct {
@@ -67,6 +68,13 @@ func (e *Environment) Get(args ...object.Object) object.Object {
 		return object.NULL
 	}
 	return &object.String{Value: str}
+}
+
+func Env(args ...object.Object) object.Object {
+	if len(args) != 1 {
+		return &object.Error{Message: fmt.Sprintf("env should have only one parameter ,got %d", len(args))}
+	}
+	return &object.String{Value: os.Getenv(args[0].Inspect())}
 }
 
 func Run(r runner.Runner) func(args ...object.Object) object.Object {

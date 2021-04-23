@@ -16,7 +16,7 @@ import (
 func Run(args []string) error {
 	fs := flag.NewFlagSet(args[0], flag.ExitOnError)
 	file := fs.String("f", "deploy.mky", "Specify deployer file")
-	_ = fs.Bool("dry", false, "dry run : only print action")
+	dryrun := fs.Bool("dry", false, "dry run : only print action")
 
 	fs.Parse(args[1:])
 
@@ -60,7 +60,12 @@ task("test","mydesc",fn(){
 	}
 
 	eval.SetEnv("getTask", &object.Builtin{Fn: e.GetTask})
-	r := runner.NewDryRun(os.Stdout)
+	var r runner.Runner
+	if *dryrun {
+		r = runner.NewDryRun(os.Stdout)
+	} else {
+		r = runner.New()
+	}
 	eval.SetEnv("run", &object.Builtin{Fn: env.Run(r)})
 	eval.SetEnv("runLocally", &object.Builtin{Fn: env.RunLocally(r)})
 	eval.SetEnv("upload", &object.Builtin{Fn: env.Upload(r)})
@@ -76,7 +81,7 @@ func PrintHelp(fs *flag.FlagSet, tasks map[string]env.Task) {
 	fmt.Println()
 	fmt.Println(ansi.Yellow("Usage:"))
 	fmt.Println()
-	fmt.Println("   deployer Command [option]")
+	fmt.Println("   deployer [option] Command")
 	fmt.Println()
 	fmt.Println(ansi.Yellow("Options:"))
 	fmt.Println()
