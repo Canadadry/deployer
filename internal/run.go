@@ -2,6 +2,7 @@ package internal
 
 import (
 	"app/internal/env"
+	"app/internal/runner"
 	"app/pkg/monkey"
 	"app/pkg/monkey/object"
 	"flag"
@@ -36,13 +37,13 @@ task("test","mydesc",fn(){
 	if err != nil {
 		return err
 	}
-	e := env.New(nil)
+	e := env.New()
 	eval := monkey.New(map[string]object.BuiltinFunction{
 		"set":  e.Set,
 		"get":  e.Get,
 		"task": e.AddTask,
 	})
-	err = monkey.ToError(eval.Eval(f))
+	err = object.ToError(eval.Eval(f))
 	if err != nil {
 		return err
 	}
@@ -58,10 +59,15 @@ task("test","mydesc",fn(){
 	}
 
 	eval.SetEnv("getTask", &object.Builtin{Fn: e.GetTask})
+	r := runner.NewDryRun(os.Stdout)
+	eval.SetEnv("run", &object.Builtin{Fn: env.Run(r)})
+	eval.SetEnv("runLocally", &object.Builtin{Fn: env.RunLocally(r)})
+	eval.SetEnv("upload", &object.Builtin{Fn: env.Upload(r)})
+	eval.SetEnv("download", &object.Builtin{Fn: env.Download(r)})
 
 	prog := fmt.Sprintf(`getTask("%s")()`, command)
 
-	return monkey.ToError(eval.Eval(strings.NewReader(prog)))
+	return object.ToError(eval.Eval(strings.NewReader(prog)))
 }
 
 func PrintHelp(fs *flag.FlagSet, tasks map[string]env.Task) {

@@ -96,6 +96,20 @@ type Error struct {
 func (e *Error) Type() ObjectType { return ERROR_OBJ }
 func (e *Error) Inspect() string  { return "ERROR: " + e.Message }
 
+func ToError(result Object) error {
+	if result.Type() == ERROR_OBJ {
+		return fmt.Errorf(result.Inspect())
+	}
+	return nil
+}
+
+func FromError(err error) Object {
+	if err != nil {
+		return &Error{Message: err.Error()}
+	}
+	return NULL
+}
+
 type Function struct {
 	Parameters []*ast.Identifier
 	Body       *ast.BlockStatement

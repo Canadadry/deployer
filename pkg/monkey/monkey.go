@@ -11,13 +11,6 @@ import (
 	"strings"
 )
 
-func ToError(result object.Object) error {
-	if result.Type() == object.ERROR_OBJ {
-		return fmt.Errorf(result.Inspect())
-	}
-	return nil
-}
-
 type Evalulator interface {
 	Eval(io.Reader) object.Object
 	SetEnv(name string, value object.Object)
@@ -41,7 +34,7 @@ func New(fn map[string]object.BuiltinFunction) *eval {
 func (e *eval) Eval(cmd io.Reader) object.Object {
 	content, err := ioutil.ReadAll(cmd)
 	if err != nil {
-		return &object.Error{Message: fmt.Sprintf("Can't read in put %w\n", err)}
+		return &object.Error{Message: fmt.Sprintf("Can't read in put %v\n", err)}
 	}
 
 	l := lexer.New(string(content))

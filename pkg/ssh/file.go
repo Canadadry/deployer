@@ -33,7 +33,7 @@ func (c *client) Download(pathFrom string, to io.Writer) error {
 
 	from, err := client.Open(pathFrom)
 	if err != nil {
-		return []byte{}, err
+		return err
 	}
 	defer from.Close()
 

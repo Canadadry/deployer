@@ -1,10 +1,13 @@
 package ssh
 
 import (
+	"fmt"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 	"io"
 	"net"
+	"os"
+	"path/filepath"
 )
 
 type Ssh interface {
@@ -29,7 +32,7 @@ type client struct {
 func New(l Login) (*client, error) {
 
 	config := &ssh.ClientConfig{
-		User:            l.user,
+		User:            l.User,
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 	if l.InsecureIgnoreHostKey == false {
@@ -39,10 +42,10 @@ func New(l Login) (*client, error) {
 		}
 		config.HostKeyCallback = hostKeyCallback
 	}
-	if len(l.privateKey) == 0 && len(l.password) == 0 {
+	if len(l.PrivateKey) == 0 && len(l.Password) == 0 {
 		return nil, fmt.Errorf("You must provite a password or private key")
 	}
-	if len(l.privateKey) > 0 {
+	if len(l.PrivateKey) > 0 {
 		key, err := ssh.ParsePrivateKey([]byte(l.PrivateKey))
 		if err != nil {
 			return nil, err
@@ -59,9 +62,9 @@ func New(l Login) (*client, error) {
 
 	}
 
-	c, err := ssh.Dial("tcp", net.JoinHostPort(l.addr, l.port), config)
+	c, err := ssh.Dial("tcp", net.JoinHostPort(l.Addr, fmt.Sprintf("%d", l.Port)), config)
 	if err != nil {
 		return nil, err
 	}
-	return &client{ssh: c}
+	return &client{ssh: c}, nil
 }

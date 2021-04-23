@@ -1,6 +1,7 @@
 package env
 
 import (
+	"app/internal/runner"
 	"app/pkg/monkey/object"
 	"fmt"
 )
@@ -11,24 +12,15 @@ type Task struct {
 	fn          *object.Function
 }
 
-type Target interface {
-	Run()
-	RunLocally()
-	Upload()
-	Download()
-}
-
 type Environment struct {
-	store  map[string]string
-	Tasks  map[string]Task
-	target Target
+	store map[string]string
+	Tasks map[string]Task
 }
 
-func New(t Target) Environment {
+func New() Environment {
 	return Environment{
-		store:  map[string]string{},
-		Tasks:  map[string]Task{},
-		target: t,
+		store: map[string]string{},
+		Tasks: map[string]Task{},
 	}
 }
 
@@ -75,4 +67,40 @@ func (e *Environment) Get(args ...object.Object) object.Object {
 		return object.NULL
 	}
 	return &object.String{Value: str}
+}
+
+func Run(r runner.Runner) func(args ...object.Object) object.Object {
+	return func(args ...object.Object) object.Object {
+		if len(args) != 1 {
+			return &object.Error{Message: fmt.Sprintf("run should have only one parameters,got %d", len(args))}
+		}
+		return object.FromError(r.Run(args[0].Inspect()))
+	}
+}
+
+func RunLocally(r runner.Runner) func(args ...object.Object) object.Object {
+	return func(args ...object.Object) object.Object {
+		if len(args) != 1 {
+			return &object.Error{Message: fmt.Sprintf("runLocally should have only one parameters,got %d", len(args))}
+		}
+		return object.FromError(r.RunLocally(args[0].Inspect()))
+	}
+}
+
+func Upload(r runner.Runner) func(args ...object.Object) object.Object {
+	return func(args ...object.Object) object.Object {
+		if len(args) != 2 {
+			return &object.Error{Message: fmt.Sprintf("upload should have only two parameters,got %d", len(args))}
+		}
+		return object.FromError(r.Upload(args[0].Inspect(), args[1].Inspect()))
+	}
+}
+
+func Download(r runner.Runner) func(args ...object.Object) object.Object {
+	return func(args ...object.Object) object.Object {
+		if len(args) != 2 {
+			return &object.Error{Message: fmt.Sprintf("download should have only two parameters,got %d", len(args))}
+		}
+		return object.FromError(r.Download(args[0].Inspect(), args[1].Inspect()))
+	}
 }
