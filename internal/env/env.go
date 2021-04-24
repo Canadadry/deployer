@@ -5,6 +5,7 @@ import (
 	"app/pkg/monkey/object"
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 type Task struct {
@@ -77,12 +78,47 @@ func Env(args ...object.Object) object.Object {
 	return &object.String{Value: os.Getenv(args[0].Inspect())}
 }
 
-func Run(r runner.Runner) func(args ...object.Object) object.Object {
+func Run(e *Environment, r runner.Runner) func(args ...object.Object) object.Object {
 	return func(args ...object.Object) object.Object {
 		if len(args) != 1 {
 			return &object.Error{Message: fmt.Sprintf("run should have only one parameters,got %d", len(args))}
 		}
-		return object.FromError(r.Run(args[0].Inspect()))
+		working_path, ok := e.Store["working_path"]
+		if !ok {
+			working_path, ok = e.Store["host_path"]
+			if !ok {
+				working_path = "~/"
+			}
+		}
+		out, err := r.Run(working_path, args[0].Inspect())
+		if err != nil {
+			return object.FromError(err)
+		}
+		return &object.String{Value: out}
+	}
+}
+
+func Test(e *Environment, r runner.Runner) func(args ...object.Object) object.Object {
+	return func(args ...object.Object) object.Object {
+		if len(args) != 1 {
+			return &object.Error{Message: fmt.Sprintf("run should have only one parameters,got %d", len(args))}
+		}
+		working_path, ok := e.Store["working_path"]
+		if !ok {
+			working_path, ok = e.Store["host_path"]
+			if !ok {
+				working_path = "~/"
+			}
+		}
+		cmd := fmt.Sprintf("if %s; then echo 'true'; fi", args[0].Inspect())
+		out, err := r.Run(working_path, cmd)
+		if err != nil {
+			return object.FromError(err)
+		}
+		if out == "true" {
+			return object.TRUE
+		}
+		return object.FALSE
 	}
 }
 
@@ -91,11 +127,15 @@ func RunLocally(r runner.Runner) func(args ...object.Object) object.Object {
 		if len(args) != 1 {
 			return &object.Error{Message: fmt.Sprintf("runLocally should have only one parameters,got %d", len(args))}
 		}
-		return object.FromError(r.RunLocally(args[0].Inspect()))
+		out, err := r.RunLocally(args[0].Inspect())
+		if err != nil {
+			return object.FromError(err)
+		}
+		return &object.String{Value: out}
 	}
 }
 
-func Upload(r runner.Runner) func(args ...object.Object) object.Object {
+func Upload(e *Environment, r runner.Runner) func(args ...object.Object) object.Object {
 	return func(args ...object.Object) object.Object {
 		if len(args) != 2 {
 			return &object.Error{Message: fmt.Sprintf("upload should have only two parameters,got %d", len(args))}
@@ -104,11 +144,28 @@ func Upload(r runner.Runner) func(args ...object.Object) object.Object {
 	}
 }
 
-func Download(r runner.Runner) func(args ...object.Object) object.Object {
+func Download(e *Environment, r runner.Runner) func(args ...object.Object) object.Object {
 	return func(args ...object.Object) object.Object {
 		if len(args) != 2 {
 			return &object.Error{Message: fmt.Sprintf("download should have only two parameters,got %d", len(args))}
 		}
 		return object.FromError(r.Download(args[0].Inspect(), args[1].Inspect()))
+	}
+}
+
+func Cd(e *Environment) func(args ...object.Object) object.Object {
+	return func(args ...object.Object) object.Object {
+		if len(args) != 1 {
+			return &object.Error{Message: fmt.Sprintf("cd should have only one parameters,got %d", len(args))}
+		}
+		working_path, ok := e.Store["working_path"]
+		if !ok {
+			working_path, ok = e.Store["host_path"]
+			if !ok {
+				working_path = "~/"
+			}
+		}
+		e.Store["working_path"] = filepath.Clean(working_path + "/" + args[0].Inspect())
+		return object.NULL
 	}
 }
