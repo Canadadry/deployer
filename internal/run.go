@@ -45,6 +45,7 @@ task("test","mydesc",fn(){
 		"set":  e.Set,
 		"get":  e.Get,
 		"task": e.AddTask,
+		"env":  env.Env,
 	})
 	err = object.ToError(eval.Eval(f))
 	if err != nil {
@@ -66,11 +67,12 @@ task("test","mydesc",fn(){
 	if *dryrun {
 		r = runner.NewDryRun(os.Stdout)
 	} else {
-		run := runner.New()
 		host_path, ok := e.Store["host_path"]
 		if !ok {
+			e.Store["host_path"] = "~/"
 			host_path = "~/"
 		}
+		e.Store["working_path"] = host_path
 		host_addr, ok := e.Store["host_addr"]
 		if !ok {
 			return fmt.Errorf("you must set the key 'host_addr'")
@@ -86,13 +88,17 @@ task("test","mydesc",fn(){
 		}
 		host_private_key_name, ok := e.Store["host_private_key"]
 		if !ok {
-			host_private_key_name = "~/.ssh/id_rsa"
+			dirname, err := os.UserHomeDir()
+			if err != nil {
+				return err
+			}
+			host_private_key_name = dirname + "/.ssh/id_rsa"
 		}
 		host_private_key, err := ioutil.ReadFile(host_private_key_name)
 		if err != nil {
 			return err
 		}
-		run.Ssh, err = ssh.New(ssh.Login{
+		s, err := ssh.New(ssh.Login{
 			Addr:       host_addr,
 			Port:       host_port,
 			User:       host_user,
@@ -101,14 +107,15 @@ task("test","mydesc",fn(){
 		if err != nil {
 			return err
 		}
-		run.Local = fs.NewLocal("./")
-		run.DistantPath = host_path
-		r = run
+		r = runner.New(s, fs.NewLocal("./"))
 	}
-	eval.SetEnv("run", &object.Builtin{Fn: env.Run(r)})
+
+	eval.SetEnv("run", &object.Builtin{Fn: env.Run(&e, r)})
+	eval.SetEnv("test", &object.Builtin{Fn: env.Test(&e, r)})
 	eval.SetEnv("runLocally", &object.Builtin{Fn: env.RunLocally(r)})
-	eval.SetEnv("upload", &object.Builtin{Fn: env.Upload(r)})
-	eval.SetEnv("download", &object.Builtin{Fn: env.Download(r)})
+	eval.SetEnv("upload", &object.Builtin{Fn: env.Upload(&e, r)})
+	eval.SetEnv("download", &object.Builtin{Fn: env.Download(&e, r)})
+	eval.SetEnv("cd", &object.Builtin{Fn: env.Cd(&e)})
 
 	prog := fmt.Sprintf(`getTask("%s")()`, command)
 
