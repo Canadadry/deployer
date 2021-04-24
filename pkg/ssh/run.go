@@ -2,6 +2,7 @@ package ssh
 
 import (
 	"bytes"
+	"path/filepath"
 )
 
 func (c *client) Run(path string, cmd string) (string, error) {
@@ -13,6 +14,6 @@ func (c *client) Run(path string, cmd string) (string, error) {
 	b := &bytes.Buffer{}
 	session.Stdout = b
 	session.Stderr = b
-	err = session.Run(cmd)
+	err = session.Run("cd " + filepath.Clean(path) + ";" + cmd)
 	return b.String(), err
 }

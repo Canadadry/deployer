@@ -115,7 +115,7 @@ func Test(e *Environment, r runner.Runner) func(args ...object.Object) object.Ob
 		if err != nil {
 			return object.FromError(err)
 		}
-		if out == "true" {
+		if out == "true\n" {
 			return object.TRUE
 		}
 		return object.FALSE
