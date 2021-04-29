@@ -1,16 +1,20 @@
 package ssh
 
 import (
+	"bytes"
 	"path/filepath"
+	"sync"
 )
 
-type byteBuf struct {
-	content []byte
+type synchronizedWriter struct {
+	m   sync.Mutex
+	buf *bytes.Buffer
 }
 
-func (bb *byteBuf) Write(b []byte) (int, error) {
-	bb.content = append(bb.content, b...)
-	return len(b), nil
+func (w *synchronizedWriter) Write(p []byte) (int, error) {
+	w.m.Lock()
+	defer w.m.Unlock()
+	return w.buf.Write(p)
 }
 
 func (c *client) Run(path string, cmd string) (string, error) {
@@ -19,9 +23,10 @@ func (c *client) Run(path string, cmd string) (string, error) {
 		return "", err
 	}
 	defer session.Close()
-	b := &byteBuf{}
-	session.Stdout = b
-	session.Stderr = b
+	b := &bytes.Buffer{}
+	w := &synchronizedWriter{buf: b}
+	session.Stdout = w
+	session.Stderr = w
 	err = session.Run("cd " + filepath.Clean(path) + ";" + cmd)
-	return string(b.content), err
+	return b.String(), err
 }
