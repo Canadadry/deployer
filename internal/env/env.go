@@ -2,6 +2,8 @@ package env
 
 import (
 	"app/internal/runner"
+	"app/internal/script"
+	"app/pkg/monkey"
 	"app/pkg/monkey/object"
 	"fmt"
 	"os"
@@ -167,5 +169,14 @@ func Cd(e *Environment) func(args ...object.Object) object.Object {
 		}
 		e.Store["working_path"] = filepath.Clean(working_path + "/" + args[0].Inspect())
 		return object.NULL
+	}
+}
+
+func Import(e monkey.Evaluator) func(args ...object.Object) object.Object {
+	return func(args ...object.Object) object.Object {
+		if len(args) != 1 {
+			return &object.Error{Message: fmt.Sprintf("import should have only one parameters,got %d", len(args))}
+		}
+		return script.Import(args[0].Inspect(), e)
 	}
 }

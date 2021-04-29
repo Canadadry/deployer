@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-type Evalulator interface {
+type Evaluator interface {
 	Eval(io.Reader) object.Object
 	SetEnv(name string, value object.Object)
 }

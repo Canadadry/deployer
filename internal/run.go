@@ -47,6 +47,8 @@ task("test","mydesc",fn(){
 		"task": e.AddTask,
 		"env":  env.Env,
 	})
+	eval.SetEnv("import", &object.Builtin{Fn: env.Import(eval)})
+
 	err = object.ToError(eval.Eval(f))
 	if err != nil {
 		return err
@@ -63,6 +65,7 @@ task("test","mydesc",fn(){
 	}
 
 	eval.SetEnv("getTask", &object.Builtin{Fn: e.GetTask})
+
 	var r runner.Runner
 	if *dryrun {
 		r = runner.NewDryRun(os.Stdout)
